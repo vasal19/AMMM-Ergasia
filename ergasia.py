@@ -29,9 +29,26 @@ def perceptron(x, t, maxEpochs, beta):
     return w
 
 def adaline(x, t, maxEpochs, beta, minmse):
-    
-    
-    return 0
+    w = np.random.rand()
+    flag = False
+    mse = 0
+    epoch = 0
+    y = np.zeros(len(t))
+    delta = np.zeros(len(t))
+    sfalma = 0
+    while epoch <= maxEpochs and flag == False:
+        for p in range(1, len(x)):
+            u = x[p,:].dot(w)
+            print (u)
+            y[p] = u
+            delta[p] = t[p] - y[p]
+            for j in range(1,3):
+                w[j] = w[j] + beta * delta[p] * x[p,j]
+            sfalma = sfalma + delta[p]**2
+        if sfalma/len(t) <= minmse:
+            flag == True
+        epoch += 1
+    return w
 
 data = read_csv('iris.data', header=None).values
 numberOfPatterns, numberOfAttributes = data.shape
@@ -97,7 +114,6 @@ while ans == 'y':
             beta = float(input("Δώσε τιμή για τον συντελεστή εκπαίδευσης: "))
             
             w = perceptron(xtrain, ttrain, maxEpochs, beta)
-            print (w)
             yTest = xtest.dot(w)
             
             predictTest = np.zeros(len(ttest))
