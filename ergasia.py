@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pandas import read_csv
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 def perceptron(x, t, maxEpochs, beta):
     w = np.random.rand()
@@ -29,24 +30,25 @@ def perceptron(x, t, maxEpochs, beta):
     return w
 
 def adaline(x, t, maxEpochs, beta, minmse):
-    w = np.random.rand()
+    w = np.random.rand(1, 5)
     flag = False
-    mse = 0
-    epoch = 0
     y = np.zeros(len(t))
-    delta = np.zeros(len(t))
-    sfalma = 0
+    u = y
+    epoch = 1
     while epoch <= maxEpochs and flag == False:
         for p in range(1, len(x)):
-            u = x[p,:].dot(w)
-            print (u)
-            y[p] = u
-            delta[p] = t[p] - y[p]
-            for j in range(1,3):
-                w[j] = w[j] + beta * delta[p] * x[p,j]
-            sfalma = sfalma + delta[p]**2
-        if sfalma/len(t) <= minmse:
-            flag == True
+            u[p] = x[p,0] * w[0,0] + x[p,1] * w[0,1] + x[p,2] * w[0,2] + x[p,3] * w[0,3]
+            y[p] = u[p]
+            w[0,0] = w[0,0] + beta * (t[p] - y[p]) * x[p,0]
+            w[0,1] = w[0,1] + beta * (t[p] - y[p]) * x[p,1]
+            w[0,2] = w[0,2] + beta * (t[p] - y[p]) * x[p,2]
+            w[0,3] = w[0,3] + beta * (t[p] - y[p]) * x[p,3]
+        mse = np.square(np.subtract(t,y)).mean()
+        mse = mean_squared_error(t,y) 
+        print ("Εποχή" + str(epoch))
+        print ("Σφάλμα" + str(mse))
+        if mse < minmse:
+            flag = True
         epoch += 1
     return w
 
@@ -95,7 +97,7 @@ while ans == 'y':
     xtest = np.vstack((x[40:50,:], x[90:100,:], x[140:150,:])).astype(float)
     ttrain = np.hstack((t[:40], t[50:90], t[100:140])).astype(float)
     ttest = np.hstack((t[40:50], t[90:100], t[140:150])).astype(float)
-    
+    print(ttest)
     plt.plot(xtrain[:,0], xtrain[:,2], 'b.')
     plt.plot(xtest[:,0], xtest[:,2], 'r.')
     plt.show()
@@ -141,7 +143,7 @@ while ans == 'y':
                 plt.subplot(3, 3, k+1)
                 plt.plot(xtrain[:,0], xtrain[:,2], 'b.')
                 plt.plot(xtest[:,0], xtest[:,2], 'r.')
-                
+
                 w = perceptron(xtrain, ttrain, maxEpochs, beta)
                 yTest = xtest.dot(w)
                 
@@ -160,8 +162,8 @@ while ans == 'y':
             plt.clf()
             
         elif algoChoice == 2:
-            ttrain1 = ttrain
-            ttest1 = ttest
+            ttrain1 = np.zeros(len(ttrain))
+            ttest1 = np.zeros(len(ttest))
             
             for pattern in range(0, len(xtrain)):
                 if ttrain[pattern] == 1:
@@ -173,16 +175,17 @@ while ans == 'y':
                     ttest1[pattern] = 1
                 else:
                     ttest1[pattern] = -1
-            
+            print(ttest)
             maxEpochs = int(input("Δώσε τιμή για το μέγιστο αριθμό επαναλήψεων: "))
             beta = float(input("Δώσε τιμή για τον συντελεστή εκπαίδευσης: "))
             minmse = float(input("Δώσε τιμή για το ελάχιστο σφάλμα: "))
+            print("Για ένα fold.")
+            w = adaline(xtrain, ttrain1, maxEpochs, beta, minmse)
+            w1 = np.transpose(w)
+            yTest = xtest.dot(w1)
             
-            w = adaline(xtrain, ttrain, maxEpochs, beta, minmse)
-            yTest = xtest.dot(w)
-            
-            predictTest = np.zeros(len(ttest))
-            for i in range(0, len(ttest)):
+            predictTest = np.zeros(len(ttest1))
+            for i in range(0, len(ttest1)):
                 if yTest[i] < 0:
                     predictTest[i] = 0
                 else:
@@ -202,16 +205,31 @@ while ans == 'y':
                 ttrain = ttrain.astype(float)
                 ttest = ttest.astype(float)
                 
+                ttrain1 = np.zeros(len(ttrain))
+                ttest1 = np.zeros(len(ttest))
+                
+                for pattern in range(0, len(ttrain)):
+                    if ttrain[pattern] == 1:
+                        ttrain1[pattern] = 1
+                    else:
+                        ttrain1[pattern] = -1
+                for pattern in range(0, len(ttest)):
+                    if ttest[pattern] == 1:
+                        ttest1[pattern] = 1
+                    else:
+                        ttest1[pattern] = -1
+                
                 plt.figure(0)
                 plt.subplot(3, 3, k+1)
                 plt.plot(xtrain[:,0], xtrain[:,2], 'b.')
                 plt.plot(xtest[:,0], xtest[:,2], 'r.')
                 
-                w = adaline(xtrain, ttrain, maxEpochs, beta, minmse)
-                yTest = xtest.dot(w)
-                
+                w = adaline(xtrain, ttrain1, maxEpochs, beta, minmse)
+                w1 = np.transpose(w)
+                yTest = xtest.dot(w1)
+                print (ttest)
                 predictTest = np.zeros(len(ttest))
-                for i in range(0, len(ttest)):
+                for i in range(0, len(ttest1)):
                     if yTest[i] < 0:
                         predictTest[i] = 0
                     else:
