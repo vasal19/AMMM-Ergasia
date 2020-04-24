@@ -13,20 +13,26 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 def perceptron(x, t, maxEpochs, beta):
-    w = np.random.rand()
-    NoChange = True
-    for i in range(0, maxEpochs):
-        for p in range(0, len(x)):
-            u = x[p,:].dot(w)
-            if u.all() < 0:
-                y = -1
-            else:
-                y = 1
-            if t[p] != y:
-                w = w + beta * (t[p] - y) * x[p,:]
-                NoChange = False
-        if NoChange:
-            break
+    w = np.random.rand(1,5)
+    y = np.zeros(len(t))
+    u = y
+    flag = False
+    epoch = 1
+    while epoch <= maxEpochs and flag == False:
+        flag = True
+        for p in range(1, len(x)):
+            u[p] = x[p,0] * w[0,0] + x[p,1] * w[0,1] + x[p,2] * w[0,2] + x[p,3] * w[0,3]
+            if u[p] < 0:
+                y[p] = -1
+            else :
+                y[p] = 1
+            if t[p] != y[p]:
+                w[0,1] = w[0,1] + beta * (t[p] - y[p]) * x[p,0]
+                w[0,2] = w[0,2] + beta * (t[p] - y[p]) * x[p,1]
+                w[0,3] = w[0,3] + beta * (t[p] - y[p]) * x[p,2]
+                w[0,4] = w[0,4] + beta * (t[p] - y[p]) * x[p,3]
+                flag = False 
+        epoch += 1
     return w
 
 def adaline(x, t, maxEpochs, beta, minmse):
@@ -39,10 +45,10 @@ def adaline(x, t, maxEpochs, beta, minmse):
         for p in range(1, len(x)):
             u[p] = x[p,0] * w[0,0] + x[p,1] * w[0,1] + x[p,2] * w[0,2] + x[p,3] * w[0,3]
             y[p] = u[p]
-            w[0,0] = w[0,0] + beta * (t[p] - y[p]) * x[p,0]
-            w[0,1] = w[0,1] + beta * (t[p] - y[p]) * x[p,1]
-            w[0,2] = w[0,2] + beta * (t[p] - y[p]) * x[p,2]
-            w[0,3] = w[0,3] + beta * (t[p] - y[p]) * x[p,3]
+            w[0,1] = w[0,1] + beta * (t[p] - y[p]) * x[p,0]
+            w[0,2] = w[0,2] + beta * (t[p] - y[p]) * x[p,1]
+            w[0,3] = w[0,3] + beta * (t[p] - y[p]) * x[p,2]
+            w[0,4] = w[0,4] + beta * (t[p] - y[p]) * x[p,3]
         mse = np.square(np.subtract(t,y)).mean()
         mse = mean_squared_error(t,y) 
         print ("Εποχή" + str(epoch))
@@ -116,7 +122,8 @@ while ans == 'y':
             beta = float(input("Δώσε τιμή για τον συντελεστή εκπαίδευσης: "))
             
             w = perceptron(xtrain, ttrain, maxEpochs, beta)
-            yTest = xtest.dot(w)
+            w1 = np.transpose(w)
+            yTest = xtest.dot(w1)
             
             predictTest = np.zeros(len(ttest))
             for i in range(0, len(ttest)):
@@ -145,7 +152,8 @@ while ans == 'y':
                 plt.plot(xtest[:,0], xtest[:,2], 'r.')
 
                 w = perceptron(xtrain, ttrain, maxEpochs, beta)
-                yTest = xtest.dot(w)
+                w1 = np.transpose(w)
+                yTest = xtest.dot(w1)
                 
                 predictTest = np.zeros(len(ttest))
                 for i in range(0, len(ttest)):
@@ -255,8 +263,9 @@ while ans == 'y':
                     ttest1[pattern] = 1
                 else:
                     ttest1[pattern] = -1    
-            
+            w = np.random.rand(1, 5)
             # TODO Fix w
+
             w = ttrain1 * np.linalg.pinv(xtrain)
             yTest = xtest.dot(w)
             predictTest = np.zeros(len(ttest))
