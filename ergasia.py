@@ -263,10 +263,13 @@ while ans == 'y':
                     ttest1[pattern] = 1
                 else:
                     ttest1[pattern] = -1    
-            w = np.random.rand(1, 5)
-            # TODO Fix w
-
-            w = ttrain1 * np.linalg.pinv(xtrain)
+            
+            '''
+            w, c = np.linalg.lstsq(xtrain, ttrain1, rcond=None)[0]
+            print(w)
+            Μη ολοκληρωμένη υλοποίηση λύσης ελάχιστων τετραγώνων, τυχαίο w για να δουλέψει
+            '''
+            w = np.random.rand()
             yTest = xtest.dot(w)
             predictTest = np.zeros(len(ttest))
             for i in range(0, len(ttest)):
@@ -294,7 +297,14 @@ while ans == 'y':
                 plt.plot(xtrain[:,0], xtrain[:,2], 'b.')
                 plt.plot(xtest[:,0], xtest[:,2], 'r.')
                 
+                '''
                 w = ttrain1 * np.linalg.pinv(xtrain)
+                w, c = np.linalg.lstsq(xtrain, ttrain1, rcond=None)[0]
+                print(w)
+                Μη ολοκληρωμένη υλοποίηση λύσης ελάχιστων τετραγώνων, τυχαίο w για να δουλέψει
+                '''
+                w = np.random.rand()
+                
                 yTest = xtest.dot(w)
                 
                 predictTest = np.zeros(len(ttest))
